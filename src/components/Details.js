@@ -3,11 +3,21 @@ import React, { useState } from 'react';
 import './details.css';
 import { motion } from 'framer-motion';
 
-function Details() {
+function Details({ onSubmit }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handlePhoneChange = (event) => {
+    setPhone(event.target.value);
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -35,6 +45,35 @@ function Details() {
     }
   };
 
+  const handleFormSubmit = async () => {
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('phone', phone);
+    formData.append('latitude', latitude);
+    formData.append('longitude', longitude);
+    formData.append('image', selectedFile); // Appended the image file
+  
+    try {
+      const response = await fetch('http://localhost:5000/users', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (response.ok) {
+        console.log('Data successfully submitted');
+        // Handle any success actions here
+      } else {
+        console.error('Error submitting data');
+        // Handle any error actions here
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      // Handle any error actions here
+    }
+  };
+  
+  
+
   return (
     <div>
     <p>Enter Your Details Below:</p>
@@ -48,12 +87,22 @@ function Details() {
         <label>
           Enter your name:
         </label>
-          <input type='text' className='inputBox' />
+          <input 
+            type='text' 
+            className='inputBox'
+            value={name}
+            onChange={handleNameChange}
+          />
         
         <label>
           Enter your Phone number:
           </label>
-          <input type='text' className='inputBox' />
+          <input
+            type='text'
+            className='inputBox'
+            value={phone}
+            onChange={handlePhoneChange}
+             />
         
         <div className='locationInputs'>
           <label>
@@ -93,6 +142,8 @@ function Details() {
           style={{ maxWidth: '40%', height: 'auto', marginTop: '2px', maxHeight: '30vh' }}
         />
       )}
+      <button className='submitBtn' onClick={handleFormSubmit}>Submit</button>
+      {/*after clicking this button a post request is sent by the handlesubmitform method*/}
     </motion.div>
   </div>
   );
